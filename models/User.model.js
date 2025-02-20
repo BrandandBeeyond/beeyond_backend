@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your Mobile"],
     minLength: [10, "Mobile No should be atleast 10 numbers"],
+    unique:true
   },
   role: {
     type: String,
