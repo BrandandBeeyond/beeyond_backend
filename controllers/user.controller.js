@@ -51,20 +51,51 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
     }
 
     const user = await User.create({
-        name,email,password
+      name,
+      email,
+      password,
     });
 
     return res.status(200).json({
-        success:true,
-        message:'User registration successfull',
-        data:user
-    })
+      success: true,
+      message: "User registration successfull",
+      data: user,
+    });
   } catch (error) {
     console.error(error);
     return res
       .status(404)
       .json({ success: false, message: "Something wents wrong" });
   }
+});
+
+const loginUser = asyncErrorHandler(async (req, res) => {
+  try {
+    const { email, passsword } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+        return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    sendToken(user, 200, res);
+  } catch (error) {}
 });
 
 module.exports = {
