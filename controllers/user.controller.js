@@ -1,3 +1,4 @@
+const sendToken = require("../config/sendToken");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const User = require("../models/User.model");
 
@@ -54,13 +55,10 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
       name,
       email,
       password,
+      mobile
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "User registration successfull",
-      data: user,
-    });
+    sendToken(user, 201, res);
   } catch (error) {
     console.error(error);
     return res
@@ -71,7 +69,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
 
 const loginUser = asyncErrorHandler(async (req, res) => {
   try {
-    const { email, passsword } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res
@@ -87,18 +85,45 @@ const loginUser = asyncErrorHandler(async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
-        return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     sendToken(user, 200, res);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(404)
+      .json({ success: false, message: "Something wents wrong" });
+  }
+});
+
+const logoutUser = asyncErrorHandler(async (req, res, next) => {
+  try {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "logged out",
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(404)
+      .json({ success: false, message: "Something wents wrong" });
+  }
 });
 
 module.exports = {
   checkUserExist,
   registerUser,
+  loginUser,
+  logoutUser
 };

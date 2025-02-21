@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    required: [true, "Please enter gender"],
+    required: [false, "Please enter gender"],
   },
   mobile: {
     type: String,

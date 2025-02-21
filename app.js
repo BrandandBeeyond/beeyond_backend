@@ -1,6 +1,6 @@
 const express = require("express");
 const cloudinary = require("cloudinary");
-
+const cookieparser = require('cookie-parser');
 
 const {
   PORT,
@@ -10,6 +10,7 @@ const {
 } = require("./config/config");
 const connectTodb = require("./dbConnection");
 const productRouter = require("./routes/product.route");
+const userRouter = require("./routes/user.route");
 
 const app = express();
 const port = PORT;
@@ -24,12 +25,14 @@ cloudinary.config({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieparser());
 
 app.get("/", (req, res) => {
   res.send(`<center><h1>Server is Started...</h1></center>`);
 });
 
 app.use('/api/v1',productRouter);
+app.use('/api/v1',userRouter);
 
 app.listen(port, () => {
   console.log(`server is running on http://localhost:${port}`);

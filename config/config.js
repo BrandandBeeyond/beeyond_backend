@@ -7,6 +7,7 @@ const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
 const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES = process.env.JWT_EXPIRES;
+const COOKIE_EXPIRE = process.env.COOKIE_EXPIRE;
 
 module.exports={
     PORT,
@@ -15,5 +16,6 @@ module.exports={
     CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET,
     JWT_SECRET,
-    JWT_EXPIRES
+    JWT_EXPIRES,
+    COOKIE_EXPIRE
 }
