@@ -1,6 +1,7 @@
 const express = require("express");
 const cloudinary = require("cloudinary");
 const cookieparser = require('cookie-parser');
+const cors = require('cors')
 
 const {
   PORT,
@@ -26,6 +27,7 @@ cloudinary.config({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieparser());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send(`<center><h1>Server is Started...</h1></center>`);
