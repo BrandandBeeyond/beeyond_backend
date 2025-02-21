@@ -12,7 +12,7 @@ const checkUserExist = asyncErrorHandler(async (req, res, next) => {
         .json({ success: false, message: "Please Enter Email" });
     }
 
-    const user = User.findOne({ email });
+    const user =  await User.findOne({ email });
 
     if (user) {
       return res.status(200).json({
