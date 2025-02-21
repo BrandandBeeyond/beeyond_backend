@@ -17,7 +17,7 @@ const checkUserExist = asyncErrorHandler(async (req, res, next) => {
     if (user) {
       return res.status(200).json({
         success: true,
-        userExists:!user,
+        userExists:true,
         message: user ? "User exists, proceed to login" : "User does not exist, proceed to registration",
       });
     } else {
