@@ -146,6 +146,10 @@ const sendOTP = async (req, res) => {
         channel: "sms",
         to: `+${phoneNumber}`,
       });
+      console.log(TWILIO_ACCOUNT_SID);
+      console.log(TWILIO_AUTH_TOKEN);
+      console.log(TWILIO_SERVICE_SID);
+      
     return res.status(200).json({
       success: true,
       message: "otp sent successfully",
