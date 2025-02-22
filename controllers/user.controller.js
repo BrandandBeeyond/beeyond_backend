@@ -139,26 +139,41 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 
 const sendOTP = async (req, res) => {
   const { phoneNumber } = req.body ?? {};
+
   try {
+   
+
+    // Ensure all credentials exist before proceeding
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_SERVICE_SID) {
+      console.error("Missing Twilio credentials");
+      return res.status(500).json({
+        success: false,
+        message: "Missing Twilio credentials. Please check your environment variables.",
+      });
+    }
+
+    // Send OTP using Twilio
     const result = await client.verify.v2
-      .services(TWILIO_SERVICE_SID)
+      .services(process.env.TWILIO_SERVICE_SID)
       .verifications.create({
         channel: "sms",
         to: `+${phoneNumber}`,
       });
-      console.log(TWILIO_ACCOUNT_SID);
-      console.log(TWILIO_AUTH_TOKEN);
-      console.log(TWILIO_SERVICE_SID);
-      
+
+    console.log("OTP Sent Successfully:", result);
+
     return res.status(200).json({
       success: true,
-      message: "otp sent successfully",
+      message: "OTP sent successfully",
       data: result,
     });
   } catch (error) {
-    res.status(500).send({
+    console.error("Error in sendOTP:", error);
+
+    return res.status(500).json({
       success: false,
-      message: `Error in sending otp`,
+      message: "Error in sending OTP",
+      error: error.message, // Send actual error message for debugging
     });
   }
 };
