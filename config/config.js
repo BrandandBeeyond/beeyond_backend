@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
@@ -8,14 +8,20 @@ const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES = process.env.JWT_EXPIRES;
 const COOKIE_EXPIRE = process.env.COOKIE_EXPIRE;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_SERVICE_SID = process.env.TWILIO_SERVICE_SID;
 
-module.exports={
-    PORT,
-    MONGO_URI,
-    CLOUDINARY_NAME,
-    CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET,
-    JWT_SECRET,
-    JWT_EXPIRES,
-    COOKIE_EXPIRE
-}
+module.exports = {
+  PORT,
+  MONGO_URI,
+  CLOUDINARY_NAME,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+  JWT_SECRET,
+  JWT_EXPIRES,
+  COOKIE_EXPIRE,
+  TWILIO_AUTH_TOKEN,
+  TWILIO_ACCOUNT_SID,
+  TWILIO_SERVICE_SID
+};
