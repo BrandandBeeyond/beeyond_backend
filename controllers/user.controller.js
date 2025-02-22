@@ -154,7 +154,7 @@ const sendOTP = async (req, res) => {
   } catch (error) {
     res.status(500).send({
       success: false,
-      message: `Error in sending otp: ${err.message}`,
+      message: `Error in sending otp`,
     });
   }
 };
@@ -177,7 +177,7 @@ const verifyOTP = async (req, res) => {
   } catch (error) {
     res.status(500).send({
       success: false,
-      message: `Error in verifying otp: ${err.message}`,
+      message: `Error in verifying otp`,
     });
   }
 };
