@@ -44,6 +44,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
     }
 
     const existingUser = await User.findOne({ email });
+    
 
     if (existingUser) {
       return res
@@ -51,6 +52,11 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
         .json({ success: false, message: "user already exists" });
     }
 
+    const existingMobile = await User.findOne({mobile});
+
+    if(existingMobile){
+       return res.status(400).json({success:false,message:"This mobile number is already in use"});
+    }
     const user = await User.create({
       name,
       email,
