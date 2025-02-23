@@ -2,13 +2,26 @@ const {
   TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN,
   TWILIO_SERVICE_SID,
+  EMAIL_USER,
+  EMAIL_PASS,
 } = require("../config/config");
 const sendToken = require("../config/sendToken");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const User = require("../models/User.model");
 const twilio = require("twilio");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+const otpStore = new Map();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  },
+});
 
 const checkUserExist = asyncErrorHandler(async (req, res, next) => {
   try {
@@ -141,14 +154,17 @@ const sendOTP = async (req, res) => {
   const { phoneNumber } = req.body ?? {};
 
   try {
-   
-
     // Ensure all credentials exist before proceeding
-    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_SERVICE_SID) {
+    if (
+      !process.env.TWILIO_ACCOUNT_SID ||
+      !process.env.TWILIO_AUTH_TOKEN ||
+      !process.env.TWILIO_SERVICE_SID
+    ) {
       console.error("Missing Twilio credentials");
       return res.status(500).json({
         success: false,
-        message: "Missing Twilio credentials. Please check your environment variables.",
+        message:
+          "Missing Twilio credentials. Please check your environment variables.",
       });
     }
 
@@ -201,6 +217,71 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+const sendEmailOTP = asyncErrorHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Please Enter email" });
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found with this email" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    otpStore.set(email, otp);
+
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: email,
+      subject: "Beeyond",
+      text: `your otp code is ${otp},it is valid for 5 mins`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return res.json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("unable to send otp", error);
+    return res.json({ success: false, message: "something wents wrong" });
+  }
+});
+
+const verifyEmailOTP=asyncErrorHandler(async(req,res)=>{
+   try {
+      const {email,otp} = req.body;
+
+      if (!email || !otp) {
+        return res.status(400).json({ success: false, message: "Email and OTP are required" });
+      }
+
+      const storedOtp = otpStore.get(email);
+
+      if (!storedOtp || storedOtp !== otp) {
+        return res.status(401).json({ success: false, message: "Invalid or expired OTP" });
+      }
+
+      const user = await User.findOne({email});
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+    
+   
+      otpStore.delete(email);
+    
+      // Send JWT token
+      sendToken(user, 200, res);
+   } catch (error) {
+    
+   }
+})
+
 module.exports = {
   checkUserExist,
   registerUser,
@@ -208,4 +289,5 @@ module.exports = {
   logoutUser,
   sendOTP,
   verifyOTP,
+  sendEmailOTP
 };

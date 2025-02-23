@@ -6,6 +6,7 @@ const {
   logoutUser,
   sendOTP,
   verifyOTP,
+  sendEmailOTP,
 } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
@@ -18,5 +19,7 @@ userRouter.get("/logout", logoutUser);
 
 userRouter.post("/send-otp", sendOTP);
 userRouter.post("/verify-otp", verifyOTP);
+
+userRouter.post('/send-email-otp',sendEmailOTP)
 
 module.exports = userRouter;
