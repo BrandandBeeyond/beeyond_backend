@@ -289,5 +289,6 @@ module.exports = {
   logoutUser,
   sendOTP,
   verifyOTP,
-  sendEmailOTP
+  sendEmailOTP,
+  verifyEmailOTP
 };
