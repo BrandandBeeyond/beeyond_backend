@@ -278,7 +278,8 @@ const verifyEmailOTP=asyncErrorHandler(async(req,res)=>{
       // Send JWT token
       sendToken(user, 200, res);
    } catch (error) {
-    
+    console.error("unable to send otp", error);
+    return res.json({ success: false, message: "something wents wrong" });
    }
 })
 
