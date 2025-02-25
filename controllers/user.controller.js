@@ -153,6 +153,14 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 const sendOTP = async (req, res) => {
   const { phoneNumber } = req.body ?? {};
 
+  if (!phoneNumber || phoneNumber.length !== 12 || !/^\d+$/.test(phoneNumber)) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Invalid phone number. Ensure it's in the correct format (91XXXXXXXXXX).",
+    });
+  }
+
   try {
     // Ensure all credentials exist before proceeding
     if (
@@ -168,12 +176,15 @@ const sendOTP = async (req, res) => {
       });
     }
 
+    // Format phone number correctly
+    phoneNumber = `+${phoneNumber}`; // Ensure `+` prefix
+
     // Send OTP using Twilio
     const result = await client.verify.v2
       .services(process.env.TWILIO_SERVICE_SID)
       .verifications.create({
         channel: "sms",
-        to: `+${phoneNumber}`,
+        to: phoneNumber,
       });
 
     console.log("OTP Sent Successfully:", result);
@@ -253,35 +264,40 @@ const sendEmailOTP = asyncErrorHandler(async (req, res) => {
   }
 });
 
-const verifyEmailOTP=asyncErrorHandler(async(req,res)=>{
-   try {
-      const {email,otp} = req.body;
+const verifyEmailOTP = asyncErrorHandler(async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
-      if (!email || !otp) {
-        return res.status(400).json({ success: false, message: "Email and OTP are required" });
-      }
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and OTP are required" });
+    }
 
-      const storedOtp = otpStore.get(email);
+    const storedOtp = otpStore.get(email);
 
-      if (!storedOtp || storedOtp !== otp) {
-        return res.status(401).json({ success: false, message: "Invalid or expired OTP" });
-      }
+    if (!storedOtp || storedOtp !== otp) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired OTP" });
+    }
 
-      const user = await User.findOne({email});
-      if (!user) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-    
-   
-      otpStore.delete(email);
-    
-      // Send JWT token
-      sendToken(user, 200, res);
-   } catch (error) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    otpStore.delete(email);
+
+    // Send JWT token
+    sendToken(user, 200, res);
+  } catch (error) {
     console.error("unable to send otp", error);
     return res.json({ success: false, message: "something wents wrong" });
-   }
-})
+  }
+});
 
 module.exports = {
   checkUserExist,
@@ -291,5 +307,5 @@ module.exports = {
   sendOTP,
   verifyOTP,
   sendEmailOTP,
-  verifyEmailOTP
+  verifyEmailOTP,
 };
