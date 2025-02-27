@@ -151,18 +151,18 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 });
 
 const sendOTP = async (req, res) => {
-  const { phoneNumber } = req.body ?? {};
+  let { phoneNumber } = req.body ?? {};
 
-  if (!phoneNumber || phoneNumber.length !== 12 || !/^\d+$/.test(phoneNumber)) {
+  
+  if (!phoneNumber || !phoneNumber.startsWith("91") || phoneNumber.length !== 12 || !/^\d+$/.test(phoneNumber)) {
     return res.status(400).json({
       success: false,
-      message:
-        "Invalid phone number. Ensure it's in the correct format (91XXXXXXXXXX).",
+      message: "Invalid phone number. Ensure it's in the correct format (91XXXXXXXXXX) without '+'.",
     });
   }
 
   try {
-    // Ensure all credentials exist before proceeding
+  
     if (
       !process.env.TWILIO_ACCOUNT_SID ||
       !process.env.TWILIO_AUTH_TOKEN ||
@@ -176,8 +176,8 @@ const sendOTP = async (req, res) => {
       });
     }
 
-    // Format phone number correctly
-    phoneNumber = `+${phoneNumber}`; // Ensure `+` prefix
+    // Convert phoneNumber to proper format
+    phoneNumber = `+${phoneNumber}`;
 
     // Send OTP using Twilio
     const result = await client.verify.v2
@@ -200,10 +200,11 @@ const sendOTP = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error in sending OTP",
-      error: error.message, // Send actual error message for debugging
+      error: error.message,
     });
   }
 };
+
 
 const verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body ?? {};
