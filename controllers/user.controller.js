@@ -169,9 +169,7 @@ const sendOTP = async (req, res) => {
     }
 
     // Format phone number correctly for Twilio
-    if (!phoneNumber.startsWith("+")) {
-      phoneNumber = `+${phoneNumber}`;
-    }
+    
 
     // Send OTP using Twilio
     const result = await client.verify.v2
