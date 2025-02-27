@@ -153,16 +153,19 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 const sendOTP = async (req, res) => {
   let { phoneNumber } = req.body ?? {};
 
-  
-  if (!phoneNumber || !phoneNumber.startsWith("91") || phoneNumber.length !== 12 || !/^\d+$/.test(phoneNumber)) {
+  // Normalize phone number: Remove leading `+` if present
+  phoneNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
+
+  // Ensure phoneNumber is valid (should be exactly 12 digits starting with 91)
+  if (!phoneNumber.startsWith("91") || phoneNumber.length !== 12 || !/^\d+$/.test(phoneNumber)) {
     return res.status(400).json({
       success: false,
-      message: "Invalid phone number. Ensure it's in the correct format (91XXXXXXXXXX) without '+'.",
+      message: "Invalid phone number. Ensure it's in the correct format (91XXXXXXXXXX), without '+'.",
     });
   }
 
   try {
-  
+    // Ensure Twilio credentials exist
     if (
       !process.env.TWILIO_ACCOUNT_SID ||
       !process.env.TWILIO_AUTH_TOKEN ||
@@ -176,7 +179,7 @@ const sendOTP = async (req, res) => {
       });
     }
 
-    // Convert phoneNumber to proper format
+    // Format phone number correctly for Twilio
     phoneNumber = `+${phoneNumber}`;
 
     // Send OTP using Twilio
@@ -204,6 +207,7 @@ const sendOTP = async (req, res) => {
     });
   }
 };
+
 
 
 const verifyOTP = async (req, res) => {
