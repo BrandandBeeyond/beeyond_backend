@@ -153,6 +153,8 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 const sendOTP = async (req, res) => {
   let { phoneNumber } = req.body ?? {};
 
+  console.log(req.body.phoneNumber);
+  
   try {
     // Ensure Twilio credentials exist
     if (
