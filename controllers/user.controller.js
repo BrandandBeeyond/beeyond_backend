@@ -153,8 +153,8 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 const sendOTP = async (req, res) => {
   console.log("Full request body:", req.body);
 
-  // Ensure req.body exists and contains phoneNumber
-  if (!req.body || typeof req.body.phoneNumber !== "string") {
+  // ✅ Ensure phoneNumber exists and is a valid string
+  if (!req.body || typeof req.body.phoneNumber !== "string" || req.body.phoneNumber.trim() === "") {
     return res.status(400).json({
       success: false,
       message: "Missing or invalid phone number in request body",
@@ -162,10 +162,12 @@ const sendOTP = async (req, res) => {
   }
 
   let { phoneNumber } = req.body;
+  phoneNumber = phoneNumber.trim(); // Remove extra spaces
+
   console.log("Received phone number:", phoneNumber);
 
   try {
-    // Ensure Twilio credentials exist
+    // ✅ Validate Twilio credentials
     if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_SERVICE_SID) {
       console.error("Missing Twilio credentials");
       return res.status(500).json({
@@ -174,12 +176,20 @@ const sendOTP = async (req, res) => {
       });
     }
 
-    // Format phone number correctly for Twilio
+    // ✅ Ensure phone number starts with "+"
     if (!phoneNumber.startsWith("+")) {
       phoneNumber = `+${phoneNumber}`;
     }
 
-    // Send OTP using Twilio
+    // ✅ Validate phone number format (Only digits after "+")
+    if (!/^\+\d{10,15}$/.test(phoneNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid phone number format. Must be in E.164 format (e.g., +919876543210).",
+      });
+    }
+
+    // ✅ Send OTP using Twilio
     const result = await client.verify.v2
       .services(process.env.TWILIO_SERVICE_SID)
       .verifications.create({
@@ -204,6 +214,7 @@ const sendOTP = async (req, res) => {
     });
   }
 };
+
 
 
 
