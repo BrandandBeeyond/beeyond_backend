@@ -154,7 +154,11 @@ const sendOTP = async (req, res) => {
   console.log("Full request body:", req.body);
 
   // ✅ Ensure phoneNumber exists and is a valid string
-  if (!req.body || typeof req.body.phoneNumber !== "string" || req.body.phoneNumber.trim() === "") {
+  if (
+    !req.body ||
+    typeof req.body.phoneNumber !== "string" ||
+    req.body.phoneNumber.trim() === ""
+  ) {
     return res.status(400).json({
       success: false,
       message: "Missing or invalid phone number in request body",
@@ -168,11 +172,16 @@ const sendOTP = async (req, res) => {
 
   try {
     // ✅ Validate Twilio credentials
-    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_SERVICE_SID) {
+    if (
+      !process.env.TWILIO_ACCOUNT_SID ||
+      !process.env.TWILIO_AUTH_TOKEN ||
+      !process.env.TWILIO_SERVICE_SID
+    ) {
       console.error("Missing Twilio credentials");
       return res.status(500).json({
         success: false,
-        message: "Missing Twilio credentials. Please check your environment variables.",
+        message:
+          "Missing Twilio credentials. Please check your environment variables.",
       });
     }
 
@@ -185,7 +194,8 @@ const sendOTP = async (req, res) => {
     if (!/^\+\d{10,15}$/.test(phoneNumber)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid phone number format. Must be in E.164 format (e.g., +919876543210).",
+        message:
+          "Invalid phone number format. Must be in E.164 format (e.g., +919876543210).",
       });
     }
 
@@ -214,11 +224,6 @@ const sendOTP = async (req, res) => {
     });
   }
 };
-
-
-
-
-
 
 const verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body ?? {};
@@ -268,7 +273,7 @@ const sendEmailOTP = asyncErrorHandler(async (req, res) => {
       from: EMAIL_USER,
       to: email,
       subject: "Beeyond",
-      text: `your otp code is ${otp},it is valid for 5 mins`,
+      text: `${otp}is your OTP to proceed further with Beeyond. OTPs are confidential. For security reasons, please do not share it with anyone.`,
     };
 
     await transporter.sendMail(mailOptions);
