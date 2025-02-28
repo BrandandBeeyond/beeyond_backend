@@ -151,21 +151,26 @@ const logoutUser = asyncErrorHandler(async (req, res, next) => {
 });
 
 const sendOTP = async (req, res) => {
-  let { phoneNumber } = req.body ?? {};
+  console.log("Full request body:", req.body);
 
- 
-  
+  // Ensure req.body exists and contains phoneNumber
+  if (!req.body || typeof req.body.phoneNumber !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Missing or invalid phone number in request body",
+    });
+  }
+
+  let { phoneNumber } = req.body;
+  console.log("Received phone number:", phoneNumber);
+
   try {
-    if (
-      !process.env.TWILIO_ACCOUNT_SID ||
-      !process.env.TWILIO_AUTH_TOKEN ||
-      !process.env.TWILIO_SERVICE_SID
-    ) {
+    // Ensure Twilio credentials exist
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_SERVICE_SID) {
       console.error("Missing Twilio credentials");
       return res.status(500).json({
         success: false,
-        message:
-          "Missing Twilio credentials. Please check your environment variables.",
+        message: "Missing Twilio credentials. Please check your environment variables.",
       });
     }
 
@@ -199,6 +204,7 @@ const sendOTP = async (req, res) => {
     });
   }
 };
+
 
 
 
