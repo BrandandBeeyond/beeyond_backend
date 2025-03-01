@@ -272,8 +272,8 @@ const sendEmailOTP = asyncErrorHandler(async (req, res) => {
     const mailOptions = {
       from: EMAIL_USER,
       to: email,
-      subject: "Beeyond",
-      text: `${otp}is your OTP to proceed further with Beeyond. OTPs are confidential. For security reasons, please do not share it with anyone.`,
+      subject: "OTP Verification From Beeyond",
+      text: `${otp} is your OTP to proceed further with Beeyond. OTPs are confidential. For security reasons, please do not share it with anyone.`,
     };
 
     await transporter.sendMail(mailOptions);
