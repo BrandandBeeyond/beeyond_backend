@@ -225,25 +225,54 @@ const sendOTP = async (req, res) => {
   }
 };
 
+
 const verifyOTP = async (req, res) => {
-  const { phoneNumber, otp } = req.body ?? {};
+  const { phoneNumber, otp } = req.body;
+
+  if (!phoneNumber || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Phonenumber and otp are mandatory",
+    });
+  }
+
   try {
+    if (!process.env.TWILIO_SERVICE_SID) {
+      return res.status(500).json({
+        success: false,
+        message: "Missing Twilio service sid",
+      });
+    }
+
+    const formattedNumber = phoneNumber.startsWith("+")
+      ? phoneNumber
+      : `+${phoneNumber}`;
+
     const result = await client.verify.v2
-      .services(TWILIO_SERVICE_SID)
+      .services(process.env.TWILIO_SERVICE_SID)
       .verificationChecks.create({
-        to: `+${phoneNumber}`,
+        to: formattedNumber,
         code: otp,
       });
 
-    return res.status(200).json({
-      success: true,
-      message: "OTP verified successfully",
-      data: result,
-    });
+    if (result.status === "approved") {
+      return res.status(200).json({
+        success: true,
+        message: "OTP verified successfully",
+        data: result,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again.",
+      });
+    }
   } catch (error) {
-    res.status(500).send({
+    console.error("Error in verifyOTP:", error);
+    return res.status(500).json({
       success: false,
-      message: `Error in verifying otp`,
+      message: "Error in verifying OTP",
+      error: error.message,
     });
   }
 };
