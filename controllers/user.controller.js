@@ -225,7 +225,6 @@ const sendOTP = async (req, res) => {
   }
 };
 
-
 const verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body;
 
@@ -256,6 +255,18 @@ const verifyOTP = async (req, res) => {
       });
 
     if (result.status === "approved") {
+      const user = await User.findOneAndUpdate(
+        { mobile: phoneNumber },
+        { isVerified: true },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully",
@@ -348,6 +359,23 @@ const verifyEmailOTP = asyncErrorHandler(async (req, res) => {
   }
 });
 
+const checkMobile = asyncErrorHandler(async (req, res) => {
+  try {
+    const { mobile } = req.params;
+
+    const user = await User.findOne({ mobile });
+
+    if (user) {
+      return res.json({ exists: false, verified: user.isVerfied });
+    }
+
+    return res.json({ exists: false, verified: false });
+  } catch (error) {
+    console.error("Error checking mobile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = {
   checkUserExist,
   registerUser,
@@ -357,4 +385,5 @@ module.exports = {
   verifyOTP,
   sendEmailOTP,
   verifyEmailOTP,
+  checkMobile,
 };
