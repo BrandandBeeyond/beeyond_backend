@@ -255,18 +255,18 @@ const verifyOTP = async (req, res) => {
       });
 
     if (result.status === "approved") {
-      const user = await User.findOneAndUpdate(
-        { mobile: phoneNumber },
-        { isVerified: true },
-        { new: true }
-      );
+      // const user = await User.findOneAndUpdate(
+      //   { mobile: phoneNumber },
+      //   { isVerified: true },
+      //   { new: true }
+      // );
 
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
+      // if (!user) {
+      //   return res.status(404).json({
+      //     success: false,
+      //     message: "User not found",
+      //   });
+      // }
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully",
