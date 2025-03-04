@@ -241,7 +241,7 @@ const verifyOTP = async (req, res) => {
       : `+${phoneNumber}`;
 
     // Check if user exists
-    const user = await User.findOne({ phoneNumber: formattedNumber });
+    const user = await User.findOne({ mobile: formattedNumber });
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
