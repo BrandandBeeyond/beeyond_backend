@@ -231,53 +231,55 @@ const verifyOTP = async (req, res) => {
   if (!phoneNumber || !otp) {
     return res.status(400).json({
       success: false,
-      message: "Phone number and OTP are mandatory",
+      message: "Phonenumber and otp are mandatory",
     });
   }
 
   try {
+    if (!process.env.TWILIO_SERVICE_SID) {
+      return res.status(500).json({
+        success: false,
+        message: "Missing Twilio service sid",
+      });
+    }
+
     const formattedNumber = phoneNumber.startsWith("+")
       ? phoneNumber
       : `+${phoneNumber}`;
 
-    // Check if user exists
-    const user = await User.findOne({ mobile: formattedNumber });
+    const result = await client.verify.v2
+      .services(process.env.TWILIO_SERVICE_SID)
+      .verificationChecks.create({
+        to: formattedNumber,
+        code: otp,
+      });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+    if (result.status === "approved") {
+      // const user = await User.findOneAndUpdate(
+      //   { mobile: phoneNumber },
+      //   { isVerified: true },
+      //   { new: true }
+      // );
 
-    // If using Twilio verification
-    if (process.env.TWILIO_SERVICE_SID) {
-      const result = await client.verify.v2
-        .services(process.env.TWILIO_SERVICE_SID)
-        .verificationChecks.create({
-          to: formattedNumber,
-          code: otp,
-        });
-
-      if (result.status !== "approved") {
-        return res.status(400).json({ success: false, message: "Invalid OTP" });
-      }
+      // if (!user) {
+      //   return res.status(404).json({
+      //     success: false,
+      //     message: "User not found",
+      //   });
+      // }
+      return res.status(200).json({
+        success: true,
+        message: "OTP verified successfully",
+        data: result,
+      });
     } else {
-      // Fallback OTP validation (e.g., stored in DB)
-      if (otp !== user.otp) {
-        return res.status(400).json({ success: false, message: "Invalid OTP" });
-      }
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again.",
+      });
     }
-
-    // OTP is verified, update user verification status
-    user.isVerified = true;
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "OTP verified successfully",
-      isRegistered: !!user.email, // Checks if user has an email (already registered)
-    });
-
   } catch (error) {
-    console.error("OTP verification error:", error);
+    console.error("Error in verifyOTP:", error);
     return res.status(500).json({
       success: false,
       message: "Error in verifying OTP",
@@ -285,7 +287,6 @@ const verifyOTP = async (req, res) => {
     });
   }
 };
-
 
 const sendEmailOTP = asyncErrorHandler(async (req, res) => {
   try {
