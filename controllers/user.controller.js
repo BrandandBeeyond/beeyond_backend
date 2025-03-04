@@ -85,6 +85,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
       email,
       password,
       mobile,
+      isVerfied:true
     });
 
     sendToken(user, 201, res);
@@ -256,19 +257,11 @@ const verifyOTP = async (req, res) => {
 
     if (result.status === "approved") {
 
-      const user = await User.findOne({mobile:formattedNumber});
-      console.log("this is user found with mobile",user);
-      
-
-      if(user && !user.isVerified){
-        user.isVerified = true;
-        await user.save();
-      }
      
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully",
-        isVerified: user ? user.isVerified : false,
+        isVerified:true,
         data: result,
       });
     } else {
