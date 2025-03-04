@@ -225,7 +225,7 @@ const sendOTP = async (req, res) => {
   }
 };
 
-const verifyOtp = async (req, res) => {
+const verifyOTP = async (req, res) => {
   const { phoneNumber, otp } = req.body;
 
   if (!phoneNumber || !otp) {
