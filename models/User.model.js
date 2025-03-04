@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     minLength: [10, "Mobile No should be atleast 10 numbers"],
     unique:true
   },
+  isVerified: {
+    type: Boolean,
+    default: false, 
+  },
   role: {
     type: String,
     default: "user",
