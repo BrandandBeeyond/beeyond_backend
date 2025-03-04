@@ -85,7 +85,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
       email,
       password,
       mobile,
-      isVerfied:true
+      isVerified:true
     });
 
     sendToken(user, 201, res);
