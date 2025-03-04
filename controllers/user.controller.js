@@ -257,6 +257,8 @@ const verifyOTP = async (req, res) => {
     if (result.status === "approved") {
 
       const user = await User.findOne({mobile:formattedNumber});
+      console.log("this is user found with mobile",user);
+      
 
       if(user && !user.isVerified){
         user.isVerified = true;
