@@ -358,7 +358,7 @@ const checkMobile = asyncErrorHandler(async (req, res) => {
     const user = await User.findOne({ mobile });
 
     if (user) {
-      return res.json({ exists: false, verified: user.isVerfied });
+      return res.json({ exists: true, verified: user.isVerified });
     }
 
     return res.json({ exists: false, verified: false });
