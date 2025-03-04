@@ -257,6 +257,11 @@ const verifyOTP = async (req, res) => {
 
     if (result.status === "approved") {
 
+      let user = await User.findOne({mobile:phoneNumber});
+
+      if(user){
+        sendToken(user,200,res);
+      }
      
       return res.status(200).json({
         success: true,
