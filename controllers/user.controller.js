@@ -260,7 +260,7 @@ const verifyOTP = async (req, res) => {
       let user = await User.findOne({mobile:phoneNumber});
 
       if(user){
-        sendToken(user,200,res);
+        return sendToken(user,200,res);
       }
      
       return res.status(200).json({
