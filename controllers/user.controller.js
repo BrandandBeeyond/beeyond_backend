@@ -85,7 +85,7 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
       email,
       password,
       mobile,
-      isVerified:true
+      isVerified: true,
     });
 
     sendToken(user, 201, res);
@@ -95,6 +95,53 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
       .status(404)
       .json({ success: false, message: "Something wents wrong" });
   }
+});
+
+const editUser = asyncErrorHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { name, email, mobile } = req.body;
+
+    if (!name && !email && !mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide at least one field to update",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ succes: false, message: "User not found" });
+    }
+
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ success: false, message: "This email is already in use" });
+      }
+    }
+
+    // Check if the mobile number is already in use by another user
+    if (mobile && mobile !== user.mobile) {
+      const existingMobile = await User.findOne({ mobile });
+      if (existingMobile) {
+        return res.status(400).json({
+          success: false,
+          message: "This mobile number is already in use",
+        });
+      }
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (mobile) user.mobile = mobile;
+
+    await user.save();
+  } catch (error) {}
 });
 
 const loginUser = asyncErrorHandler(async (req, res) => {
@@ -256,17 +303,16 @@ const verifyOTP = async (req, res) => {
       });
 
     if (result.status === "approved") {
+      let user = await User.findOne({ mobile: phoneNumber });
 
-      let user = await User.findOne({mobile:phoneNumber});
-
-      if(user){
-        return sendToken(user,200,res);
+      if (user) {
+        return sendToken(user, 200, res);
       }
-     
+
       return res.status(200).json({
         success: true,
         message: "OTP verified successfully",
-        isVerified:true,
+        isVerified: true,
         data: result,
       });
     } else {
@@ -383,4 +429,5 @@ module.exports = {
   sendEmailOTP,
   verifyEmailOTP,
   checkMobile,
+  editUser,
 };
