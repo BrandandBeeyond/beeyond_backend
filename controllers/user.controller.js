@@ -100,7 +100,6 @@ const registerUser = asyncErrorHandler(async (req, res, next) => {
 const editUser = asyncErrorHandler(async (req, res) => {
   try {
     const { userId } = req.params;
-
     const { name, email, mobile } = req.body;
 
     if (!name && !email && !mobile) {
@@ -113,26 +112,20 @@ const editUser = asyncErrorHandler(async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ succes: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     if (email && email !== user.email) {
       const existingEmail = await User.findOne({ email });
       if (existingEmail) {
-        return res
-          .status(400)
-          .json({ success: false, message: "This email is already in use" });
+        return res.status(400).json({ success: false, message: "This email is already in use" });
       }
     }
 
-    // Check if the mobile number is already in use by another user
     if (mobile && mobile !== user.mobile) {
       const existingMobile = await User.findOne({ mobile });
       if (existingMobile) {
-        return res.status(400).json({
-          success: false,
-          message: "This mobile number is already in use",
-        });
+        return res.status(400).json({ success: false, message: "This mobile number is already in use" });
       }
     }
 
@@ -141,8 +134,20 @@ const editUser = asyncErrorHandler(async (req, res) => {
     if (mobile) user.mobile = mobile;
 
     await user.save();
-  } catch (error) {}
+
+    // ✅ Return success response after saving
+    return res.json({
+      success: true,
+      message: "User updated successfully",
+      user,
+    });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 });
+
 
 const loginUser = asyncErrorHandler(async (req, res) => {
   try {
