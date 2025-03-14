@@ -5,8 +5,8 @@ const productRouter = express.Router();
 
 
 // adminRoutes
-productRouter.post('/admin/product/new',upload.fields([{
-    name:'images',maxCount:5
-}]),addProduct);
+productRouter.post('/admin/product/new', upload.fields([
+    { name: "images", maxCount: 5 } 
+]), addProduct);
 
 module.exports = productRouter;

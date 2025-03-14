@@ -33,7 +33,7 @@ const addProduct = asyncErrorHandler(async (req, res, next) => {
     if (!req.files || !req.files["images"]?.length) {
       return res.status(400).json({
         success: false,
-        message: "image is required",
+        message: "At least one image is required",
       });
     }
 
@@ -43,12 +43,12 @@ const addProduct = asyncErrorHandler(async (req, res, next) => {
       const imageResult = await cloudinary.v2.uploader.upload(imageFile.path, {
         folder: "products",
       });
-    }
 
-    productImages.push({
-      public_id: imageResult.public_id,
-      url: imageResult.secure_url,
-    });
+      productImages.push({
+        public_id: imageResult.public_id,
+        url: imageResult.secure_url,
+      });
+    }
 
     const parsedSpecifications = sanitizedBody.specifications
       ? JSON.parse(sanitizedBody.specifications).map((spec) => ({
