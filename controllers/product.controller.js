@@ -66,7 +66,7 @@ const addProduct = asyncErrorHandler(async (req, res, next) => {
       category,
       stock,
       images: productImages,
-      user: req.user.id,
+
     });
 
     res.status(201).json({
@@ -83,6 +83,21 @@ const addProduct = asyncErrorHandler(async (req, res, next) => {
   }
 });
 
+
+
+const getProducts = asyncErrorHandler(async(req,res,next)=>{
+  try {
+      const products = await Product.find();
+
+      res.status(200).json({
+        success: true,
+        products,
+      });
+  } catch (error) {
+    console.error(error);
+  }
+})
 module.exports = {
   addProduct,
+  getProducts
 };
