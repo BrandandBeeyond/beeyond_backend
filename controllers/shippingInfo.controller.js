@@ -1,6 +1,9 @@
 const ShippingInfo = require("../models/ShippingInfo.model");
 
 const addOrUpdateShippingInfo = async (req, res) => {
+  console.log("Request Body:", req.body);          // ✅ Log the request body
+  console.log("User from Middleware:", req.user);   // ✅ Log the user from middleware
+
   const {
     userId,
     flatNo,
@@ -15,8 +18,12 @@ const addOrUpdateShippingInfo = async (req, res) => {
     isDefault,
   } = req.body;
 
+  // Fallback to req.user.id if userId is missing in body
+  const finalUserId = userId || req.user?.id;
+  console.log("Final User ID:", finalUserId);       // ✅ Log the final user ID
+
   if (
-    !userId ||
+    !finalUserId ||
     !flatNo ||
     !city ||
     !state ||
@@ -25,13 +32,15 @@ const addOrUpdateShippingInfo = async (req, res) => {
     !country ||
     !type
   ) {
+    console.log("Validation Failed: Missing required fields");
     return res
       .status(400)
       .json({ success: false, message: "Please provide all required fields." });
   }
 
   try {
-    let shippingInfo = await ShippingInfo.findOne({ user: userId });
+    let shippingInfo = await ShippingInfo.findOne({ user: finalUserId });
+    console.log("Shipping Info Found:", shippingInfo);
 
     if (shippingInfo) {
       // ✅ If shipping info exists, add a new address
@@ -58,6 +67,8 @@ const addOrUpdateShippingInfo = async (req, res) => {
       shippingInfo.addresses.push(newAddress);
       await shippingInfo.save();
 
+      console.log("New Address Added:", newAddress);
+
       return res.status(200).json({
         success: true,
         message: "New address added successfully!",
@@ -66,7 +77,7 @@ const addOrUpdateShippingInfo = async (req, res) => {
     } else {
       // ✅ If shipping info doesn't exist, create a new entry
       const newShippingInfo = new ShippingInfo({
-        user: userId,
+        user: finalUserId,
         addresses: [
           {
             flatNo,
@@ -84,6 +95,8 @@ const addOrUpdateShippingInfo = async (req, res) => {
       });
 
       await newShippingInfo.save();
+
+      console.log("New Shipping Info Saved:", newShippingInfo);
 
       return res.status(201).json({
         success: true,

@@ -1,8 +1,9 @@
-const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config/config');
+const jwt = require("jsonwebtoken");
+const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
 
+const isAuthenticatedUser = asyncErrorHandler(async (req, res, next) => {
+ 
 
-const isAuthenticatedUser = async (req, res, next) => {
   const token =
     req.headers.authorization && req.headers.authorization.split(" ")[1];
   console.log(token);
@@ -12,9 +13,9 @@ const isAuthenticatedUser = async (req, res, next) => {
       .status(401)
       .json({ success: false, message: "Please login to access" });
   }
-  try {
-    const decoded = jwt.verify(token,JWT_SECRET);
 
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
 
     next();
@@ -23,6 +24,6 @@ const isAuthenticatedUser = async (req, res, next) => {
       .status(401)
       .json({ success: false, message: "Invalid or expired token" });
   }
-};
+});
 
-module.exports =  { isAuthenticatedUser };
+module.exports = { isAuthenticatedUser };

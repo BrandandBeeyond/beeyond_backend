@@ -7,7 +7,7 @@ const { isAuthenticatedUser } = require("../middlewares/auth");
 const shippingRouter = express.Router();
 
 // adminRoutes
-shippingRouter.post("/shippingInfo/add", isAuthenticatedUser, addOrUpdateShippingInfo);
+shippingRouter.post("/shippingInfo/add", addOrUpdateShippingInfo);
 shippingRouter.get("/shippingInfo",isAuthenticatedUser, getShippingInfo);
 
 module.exports = shippingRouter;
