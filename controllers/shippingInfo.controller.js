@@ -11,8 +11,8 @@ const addOrUpdateShippingInfo = async (req, res) => {
     landmark,
     city,
     state,
-    phoneNumber,
-    postalCode,
+    mobile,
+    pincode,
     country,
     type,
     isDefault,
@@ -27,8 +27,8 @@ const addOrUpdateShippingInfo = async (req, res) => {
     !flatNo ||
     !city ||
     !state ||
-    !phoneNumber ||
-    !postalCode ||
+    !mobile ||
+    !pincode ||
     !country ||
     !type
   ) {
@@ -46,12 +46,12 @@ const addOrUpdateShippingInfo = async (req, res) => {
       // ✅ If shipping info exists, add a new address
       const newAddress = {
         flatNo,
-        Area: area || "",
+        area: area || "",
         landmark: landmark || "",
         city,
         state,
-        phoneNumber,
-        postalCode,
+        mobile,
+        pincode,
         country,
         type,
         isDefault: isDefault || false,
@@ -81,12 +81,12 @@ const addOrUpdateShippingInfo = async (req, res) => {
         addresses: [
           {
             flatNo,
-            Area: area || "",
+            area: area || "",
             landmark: landmark || "",
             city,
             state,
-            phoneNumber,
-            postalCode,
+            mobile,
+            pincode,
             country,
             type,
             isDefault: isDefault || true,

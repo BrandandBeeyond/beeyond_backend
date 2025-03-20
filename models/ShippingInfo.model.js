@@ -28,11 +28,11 @@ const shippingInfoSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      phoneNumber: {
+      mobile: {
         type: String,
         required: true,
       },
-      postalCode: {
+      pincode: {
         type: String,
         required: true,
       },
