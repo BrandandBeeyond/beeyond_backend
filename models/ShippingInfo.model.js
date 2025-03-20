@@ -12,7 +12,7 @@ const shippingInfoSchema = new mongoose.Schema({
         type: String,       // Changed to String to support alphanumeric values
         required: true,
       },
-      Area: {
+      area: {
         type: String,
         required: false,
       },
