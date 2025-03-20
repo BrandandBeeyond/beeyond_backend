@@ -1,8 +1,7 @@
 const ShippingInfo = require("../models/ShippingInfo.model");
 
 const addOrUpdateShippingInfo = async (req, res) => {
-  console.log("Request Body:", req.body);          // ✅ Log the request body
-  console.log("User from Middleware:", req.user);   // ✅ Log the user from middleware
+  console.log('Request Body:', req.body);
 
   const {
     userId,
@@ -18,99 +17,67 @@ const addOrUpdateShippingInfo = async (req, res) => {
     isDefault,
   } = req.body;
 
-  // Fallback to req.user.id if userId is missing in body
-  const finalUserId = userId || req.user?.id;
-  console.log("Final User ID:", finalUserId);       // ✅ Log the final user ID
+  const finalUserId = userId || req.user?.id;     // ✅ Fallback to avoid null userId
 
-  if (
-    !finalUserId ||
-    !flatNo ||
-    !city ||
-    !state ||
-    !mobile ||
-    !pincode ||
-    !country ||
-    !type
-  ) {
-    console.log("Validation Failed: Missing required fields");
-    return res
-      .status(400)
-      .json({ success: false, message: "Please provide all required fields." });
+  console.log(finalUserId);
+  
+  if (!finalUserId) {
+    console.error('Missing or invalid user ID:', finalUserId);
+    return res.status(400).json({ success: false, message: 'User ID is required' });
   }
+
+  // ✅ Fallback for missing fields
+  const sanitizedAddress = {
+    flatNo: flatNo || '',
+    area: area || '',
+    landmark: landmark || '',
+    city: city || '',
+    state: state || '',
+    mobile: mobile || '',
+    pincode: pincode || '',
+    country: country || 'INDIA',
+    type: type || 'Home',
+    isDefault: isDefault ?? true,
+  };
 
   try {
     let shippingInfo = await ShippingInfo.findOne({ user: finalUserId });
-    console.log("Shipping Info Found:", shippingInfo);
 
     if (shippingInfo) {
-      // ✅ If shipping info exists, add a new address
-      const newAddress = {
-        flatNo,
-        area: area || "",
-        landmark: landmark || "",
-        city,
-        state,
-        mobile,
-        pincode,
-        country,
-        type,
-        isDefault: isDefault || false,
-      };
-
-      // If isDefault is true, make all other addresses non-default
+      // ✅ Sanitize existing addresses to prevent null issues
       if (isDefault) {
-        shippingInfo.addresses.forEach((addr) => {
-          addr.isDefault = false;
-        });
+        shippingInfo.addresses.forEach((addr) => (addr.isDefault = false));
       }
 
-      shippingInfo.addresses.push(newAddress);
+      shippingInfo.addresses.push(sanitizedAddress);
       await shippingInfo.save();
-
-      console.log("New Address Added:", newAddress);
 
       return res.status(200).json({
         success: true,
-        message: "New address added successfully!",
+        message: 'New address added successfully!',
         shippingInfo,
       });
     } else {
-      // ✅ If shipping info doesn't exist, create a new entry
+      // ✅ Create new shipping info with sanitized fields
       const newShippingInfo = new ShippingInfo({
         user: finalUserId,
-        addresses: [
-          {
-            flatNo,
-            area: area || "",
-            landmark: landmark || "",
-            city,
-            state,
-            mobile,
-            pincode,
-            country,
-            type,
-            isDefault: isDefault || true,
-          },
-        ],
+        addresses: [sanitizedAddress],
       });
 
       await newShippingInfo.save();
 
-      console.log("New Shipping Info Saved:", newShippingInfo);
-
       return res.status(201).json({
         success: true,
-        message: "Shipping info saved successfully!",
+        message: 'Shipping info saved successfully!',
         shippingInfo: newShippingInfo,
       });
     }
   } catch (error) {
-    console.error("Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error. Please try again." });
+    console.error('Error:', error);
+    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
   }
 };
+
 
 const getShippingInfo = async (req, res) => {
   try {
