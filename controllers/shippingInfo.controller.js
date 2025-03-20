@@ -2,8 +2,9 @@ const ShippingInfo = require("../models/ShippingInfo.model");
 
 const addOrUpdateShippingInfo = async (req, res) => {
   const {
+    userId,
     flatNo,
-    Area,
+    area,
     landmark,
     city,
     state,
@@ -14,32 +15,30 @@ const addOrUpdateShippingInfo = async (req, res) => {
     isDefault,
   } = req.body;
 
-  try {
-    let shippingInfo = await ShippingInfo.findOne({ user: req.user.id });
+  if (
+    !userId ||
+    !flatNo ||
+    !city ||
+    !state ||
+    !phoneNumber ||
+    !postalCode ||
+    !country ||
+    !type
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide all required fields." });
+  }
 
-    if (!shippingInfo) {
-      shippingInfo = new ShippingInfo({
-        user: req.user.id,
-        addresses: [
-          {
-            flatNo,
-            Area,
-            landmark,
-            city,
-            state,
-            phoneNumber,
-            postalCode,
-            country,
-            type,
-            isDefault: isDefault || false,
-          },
-        ],
-      });
-    } else {
-      shippingInfo.addresses.push({
+  try {
+    let shippingInfo = await ShippingInfo.findOne({ user: userId });
+
+    if (shippingInfo) {
+      // ✅ If shipping info exists, add a new address
+      const newAddress = {
         flatNo,
-        Area,
-        landmark,
+        Area: area || "",
+        landmark: landmark || "",
         city,
         state,
         phoneNumber,
@@ -47,25 +46,56 @@ const addOrUpdateShippingInfo = async (req, res) => {
         country,
         type,
         isDefault: isDefault || false,
-      });
+      };
+
+      // If isDefault is true, make all other addresses non-default
       if (isDefault) {
-        shippingInfo.addresses.forEach((address) => {
-          address.isDefault = false;
+        shippingInfo.addresses.forEach((addr) => {
+          addr.isDefault = false;
         });
-
-        shippingInfo.addresses[
-          shippingInfo.addresses.length - 1
-        ].isDefault = true;
       }
-    }
 
-    await shippingInfo.save();
-    res
-      .status(200)
-      .json({ success: true, message: "shipping info saved", shippingInfo });
+      shippingInfo.addresses.push(newAddress);
+      await shippingInfo.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "New address added successfully!",
+        shippingInfo,
+      });
+    } else {
+      // ✅ If shipping info doesn't exist, create a new entry
+      const newShippingInfo = new ShippingInfo({
+        user: userId,
+        addresses: [
+          {
+            flatNo,
+            Area: area || "",
+            landmark: landmark || "",
+            city,
+            state,
+            phoneNumber,
+            postalCode,
+            country,
+            type,
+            isDefault: isDefault || true,
+          },
+        ],
+      });
+
+      await newShippingInfo.save();
+
+      return res.status(201).json({
+        success: true,
+        message: "Shipping info saved successfully!",
+        shippingInfo: newShippingInfo,
+      });
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error. Please try again." });
   }
 };
 
@@ -86,5 +116,4 @@ const getShippingInfo = async (req, res) => {
   }
 };
 
-
-module.exports = {addOrUpdateShippingInfo,getShippingInfo}
+module.exports = { addOrUpdateShippingInfo, getShippingInfo };
