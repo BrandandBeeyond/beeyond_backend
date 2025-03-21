@@ -81,8 +81,17 @@ const addOrUpdateShippingInfo = async (req, res) => {
 
 const getShippingInfo = async (req, res) => {
   try {
-    const shippingInfo = await ShippingInfo.findOne({ user: req.user.id });
+   
+    const userId = req.params.id;
 
+    if(!userId){
+      return res.status(400).json({ success: false, message: "User ID is required" });
+    }
+
+    const shippingInfo = await ShippingInfo.findOne({user:userId});
+
+
+  
     if (!shippingInfo) {
       return res
         .status(404)
