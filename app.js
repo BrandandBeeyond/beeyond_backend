@@ -13,6 +13,7 @@ const connectTodb = require("./dbConnection");
 const productRouter = require("./routes/product.route");
 const userRouter = require("./routes/user.route");
 const shippingRouter = require("./routes/shippingInfo.route");
+const paymentRouter = require("./routes/payment.route");
 
 const app = express();
 const port = PORT;
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 app.use('/api/v1',productRouter);
 app.use('/api/v1',userRouter);
 app.use('/api/v1',shippingRouter);
+app.use('/api/v1',paymentRouter);
 
 app.listen(port, () => {
   console.log(`server is running on http://localhost:${port}`);

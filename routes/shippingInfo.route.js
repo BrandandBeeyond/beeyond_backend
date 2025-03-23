@@ -8,6 +8,6 @@ const shippingRouter = express.Router();
 
 // adminRoutes
 shippingRouter.post("/shippingInfo/add", addOrUpdateShippingInfo);
-shippingRouter.get("/shippingInfo/:id", getShippingInfo);
+shippingRouter.get("/shippingInfo", getShippingInfo);
 
 module.exports = shippingRouter;
