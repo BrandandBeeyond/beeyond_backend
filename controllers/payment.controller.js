@@ -1,12 +1,13 @@
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+const Payment = require("../models/Payment.model");
 
 const razorpayInstance = new Razorpay({
   key_id: process.env.key_id,
   key_secret: process.env.key_secret,
 });
 
-export const createOrder = async (req, res) => {
+const createOrder = async (req, res) => {
   const { amount } = req.body;
   try {
     const options = {
@@ -29,7 +30,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
-export const verifyPayment = async (req, res) => {
+const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
   try {
@@ -57,3 +58,6 @@ export const verifyPayment = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error!" });
   }
 };
+
+
+module.exports = {createOrder,verifyPayment}
