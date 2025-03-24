@@ -3,8 +3,8 @@ const crypto = require("crypto");
 const Payment = require("../models/Payment.model");
 
 const razorpayInstance = new Razorpay({
-  key_id: process.env.key_id,
-  key_secret: process.env.key_secret,
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET,
 });
 
 const createOrder = async (req, res) => {
