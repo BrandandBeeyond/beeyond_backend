@@ -9,26 +9,35 @@ const razorpayInstance = new Razorpay({
 
 const createOrder = async (req, res) => {
   const { amount } = req.body;
+
   try {
+   
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid amount" });
+    }
+
     const options = {
-      amount: Number(amount * 100),
+      amount: Number(amount * 100), // Amount in paise
       currency: "INR",
       receipt: crypto.randomBytes(10).toString("hex"),
     };
 
-    razorpayInstance.orders.create(options, (error, order) => {
+    razorpayInstance.orders.create(options, async (error, order) => {
       if (error) {
-        res
-          .status(400)
-          .json({ success: false, message: "something wents wrong" });
+        console.error("Error creating order:", error);
+        return res.status(400).json({ success: false, message: "Failed to create order" });
       }
-      res.status(200).json({ success: true, data: order });
+
+      // ✅ Return the order details
+      res.status(201).json({ success: true, data: order });
     });
+
   } catch (error) {
-    console.log(error);
+    console.error("Server error:", error);
     res.status(500).json({ message: "Internal Server Error!" });
   }
 };
+
 
 const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
