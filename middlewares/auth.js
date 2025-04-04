@@ -4,9 +4,8 @@ const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
 const isAuthenticatedUser = asyncErrorHandler(async (req, res, next) => {
  
 
-  const token =
-    req.headers.authorization && req.headers.authorization.split(" ")[1];
-  console.log(token);
+  const {token} = req.cookies;
+
 
   if (!token) {
     return res
@@ -15,8 +14,10 @@ const isAuthenticatedUser = asyncErrorHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+   
+
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decodedData.id);
 
     next();
   } catch (error) {
