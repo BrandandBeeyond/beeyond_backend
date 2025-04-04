@@ -4,7 +4,7 @@ const { createOrder, cancelOrder } = require('../controllers/order.controller');
 const orderRouter = express.Router();
 
 
-orderRouter.post("/create",isAuthenticatedUser,createOrder);
-orderRouter.put('"/cancel/:orderId',isAuthenticatedUser,cancelOrder);
+orderRouter.post("/create",createOrder);
+orderRouter.put('"/cancel/:orderId',cancelOrder);
 
 module.exports = orderRouter;
