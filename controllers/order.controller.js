@@ -3,14 +3,17 @@ const ShippingInfo = require("../models/ShippingInfo.model");
 
 const createOrder = async (req, res) => {
   try {
-    const { shippingId, orderItems, paymentInfo, totalPrice } = req.body;
+    const { userId, shippingId, orderItems, paymentInfo, totalPrice } = req.body;
 
-    const shippingInfo = await ShippingInfo.findOne({ _id: shippingId });
+    // Validate required fields
+    if (!userId || !shippingId || !orderItems || !paymentInfo || !totalPrice) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    const shippingInfo = await ShippingInfo.findById(shippingId);
 
     if (!shippingInfo) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Shipping address not found" });
+      return res.status(404).json({ success: false, message: "Shipping address not found" });
     }
 
     const selectedAddress =
@@ -18,13 +21,11 @@ const createOrder = async (req, res) => {
       shippingInfo.addresses[0];
 
     if (!selectedAddress) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No valid shipping info found" });
+      return res.status(400).json({ success: false, message: "No valid shipping info found" });
     }
 
     const order = new Order({
-      user: req.user.id,
+      user: userId, // ✅ Since req.user is not used
       shippingInfo: selectedAddress,
       orderItems,
       paymentInfo,
@@ -35,9 +36,11 @@ const createOrder = async (req, res) => {
 
     await order.save();
 
-    res
-      .status(201)
-      .json({ success: true, message: "Order placed successfully", order });
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully",
+      order,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -50,27 +53,27 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res
-        .status(400)
-        .json({ sucess: false, message: "order not found" });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     if (order.orderStatus === "Cancelled") {
-      return res.status({
+      return res.status(400).json({
         success: false,
-        message: "Order is Already cancelled",
+        message: "Order is already cancelled",
       });
     }
 
     order.orderStatus = "Cancelled";
     await order.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Order cancelled successfully", order });
+    res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      order,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-module.exports = { createOrder,cancelOrder };
+module.exports = { createOrder, cancelOrder };
