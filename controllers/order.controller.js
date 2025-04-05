@@ -3,9 +3,10 @@ const ShippingInfo = require("../models/ShippingInfo.model");
 
 const createOrder = async (req, res) => {
   try {
+    console.log('📥 Incoming Order Request:', req.body);
+
     const { userId, shippingId, orderItems, paymentInfo, totalPrice } = req.body;
 
-    // Validate required fields
     if (!userId || !shippingId || !orderItems || !paymentInfo || !totalPrice) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
@@ -24,8 +25,17 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "No valid shipping info found" });
     }
 
+    // Log for clarity
+    console.log('📦 Final Order Details:', {
+      user: userId,
+      shippingInfo: selectedAddress,
+      orderItems,
+      paymentInfo,
+      totalPrice,
+    });
+
     const order = new Order({
-      user: userId, // ✅ Since req.user is not used
+      user: userId,
       shippingInfo: selectedAddress,
       orderItems,
       paymentInfo,
@@ -34,7 +44,7 @@ const createOrder = async (req, res) => {
       orderStatus: "Processing",
     });
 
-    await order.save();
+    await order.save(); // <-- This might be failing silently
 
     res.status(201).json({
       success: true,
@@ -42,9 +52,11 @@ const createOrder = async (req, res) => {
       order,
     });
   } catch (error) {
+    console.error('🔥 Error saving order:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 const cancelOrder = async (req, res) => {
   try {
