@@ -98,7 +98,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    default: () => `ORDER-${Math.floor(100000 + Math.random() * 900000)}` 
+    default: () => `ORDER-#${Math.floor(100000 + Math.random() * 900000)}` 
   },
 
   orderStatus: {
