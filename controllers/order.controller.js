@@ -3,18 +3,23 @@ const ShippingInfo = require("../models/ShippingInfo.model");
 
 const createOrder = async (req, res) => {
   try {
-    console.log('📥 Incoming Order Request:', req.body);
+    console.log("📥 Incoming Order Request:", req.body);
 
-    const { userId, shippingId, orderItems, paymentInfo, totalPrice } = req.body;
+    const { userId, shippingId, orderItems, paymentInfo, totalPrice } =
+      req.body;
 
     if (!userId || !shippingId || !orderItems || !paymentInfo || !totalPrice) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
     }
 
     const shippingInfo = await ShippingInfo.findById(shippingId);
 
     if (!shippingInfo) {
-      return res.status(404).json({ success: false, message: "Shipping address not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Shipping address not found" });
     }
 
     const selectedAddress =
@@ -22,11 +27,13 @@ const createOrder = async (req, res) => {
       shippingInfo.addresses[0];
 
     if (!selectedAddress) {
-      return res.status(400).json({ success: false, message: "No valid shipping info found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No valid shipping info found" });
     }
 
     // Log for clarity
-    console.log('📦 Final Order Details:', {
+    console.log("📦 Final Order Details:", {
       user: userId,
       shippingInfo: selectedAddress,
       orderItems,
@@ -52,11 +59,10 @@ const createOrder = async (req, res) => {
       order,
     });
   } catch (error) {
-    console.error('🔥 Error saving order:', error);
+    console.error("🔥 Error saving order:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 const cancelOrder = async (req, res) => {
   try {
@@ -65,7 +71,9 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     if (order.orderStatus === "Cancelled") {
@@ -88,18 +96,34 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find();
 
+    res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-const getOrders = async(req,res)=>{
-    try {
-        const orders = await Order.find();
+const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log(userId);
+    
 
-        res.status(200).json({
-          success:true,
-          orders
-        })
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-}
-module.exports = { createOrder, cancelOrder,getOrders };
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { createOrder, cancelOrder, getOrders,getUserOrders };
