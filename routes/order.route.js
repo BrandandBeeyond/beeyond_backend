@@ -6,7 +6,7 @@ const orderRouter = express.Router();
 
 orderRouter.post('/create',createOrder);
 orderRouter.put('/cancel/:orderId',cancelOrder);
-orderRouter.get('/orders/all',getOrders);
+orderRouter.get('/orders',getOrders);
 orderRouter.get("/orders/:userId", getUserOrders);
 orderRouter.put('/admin/order/:orderId/status',updateOrderStatus);
 
