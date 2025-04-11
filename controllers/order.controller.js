@@ -132,6 +132,7 @@ const updateOrderStatus = async (req, res) => {
 
     const validStatuses = ["Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"];
 
+    console.log("Received order status:", `"${status}"`);
     if (!validStatuses.includes(status)) {
       return res
         .status(400)
