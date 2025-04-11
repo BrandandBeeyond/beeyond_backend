@@ -130,7 +130,7 @@ const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
+    const validStatuses = ["Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"];
 
     if (!validStatuses.includes(status)) {
       return res
@@ -152,11 +152,16 @@ const updateOrderStatus = async (req, res) => {
       order.shippedAt = new Date();
     }
 
+    if (status === "Out for Delivery") {
+      order.outForDeliveryAt = new Date(); // optional: add this field in schema if needed
+    }
+
     if (status === "Delivered") {
       order.deliveredAt = new Date();
     }
 
     await order.save();
+
     res
       .status(200)
       .json({ success: true, message: "Order status updated", order });
@@ -171,5 +176,6 @@ const updateOrderStatus = async (req, res) => {
       });
   }
 };
+
 
 module.exports = { createOrder, cancelOrder, getOrders, getUserOrders,updateOrderStatus };
