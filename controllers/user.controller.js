@@ -466,8 +466,8 @@ const sendOrderEmailSms = async (req, res) => {
     const adminSmsText = `Order ${orderId} ${eventMessage} by ${user.name}.`;
 
     const userPhone = user.mobile.startsWith("+")
-      ? user.phone
-      : `+${user.phone}`;
+      ? user.mobile
+      : `+${user.mobile}`;
 
       console.log("getting user phone",userPhone);
       
