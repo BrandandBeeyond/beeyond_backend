@@ -471,9 +471,12 @@ const sendOrderEmailSms = async (req, res) => {
 
       console.log("getting user phone",userPhone);
       
-    const adminPhone = ADMIN_PHONE.startsWith("+")
-      ? ADMIN_PHONE
-      : `+${ADMIN_PHONE}`;
+    // const adminPhone = ADMIN_PHONE.startsWith("+")
+    //   ? ADMIN_PHONE
+    //   : `+${ADMIN_PHONE}`;
+
+    //   console.log('getting admin phone',adminPhone);
+      
 
     await client.messages.create({
       to: userPhone,
@@ -481,11 +484,11 @@ const sendOrderEmailSms = async (req, res) => {
       body: userSmsText,
     });
 
-    await client.messages.create({
-      to: adminPhone,
-      from: TWILIO_PHONE_NUMBER,
-      body: adminSmsText,
-    });
+    // await client.messages.create({
+    //   to: adminPhone,
+    //   from: TWILIO_PHONE_NUMBER,
+    //   body: adminSmsText,
+    // });
 
     const userEmailOptions = {
       rom: EMAIL_USER,
