@@ -17,6 +17,7 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const ADMIN_PHONE = process.env.ADMIN_PHONE;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 
 module.exports = {
   PORT,
@@ -34,4 +35,5 @@ module.exports = {
   EMAIL_USER,
   ADMIN_PHONE,
   TWILIO_PHONE_NUMBER,
+  ADMIN_EMAIL
 };

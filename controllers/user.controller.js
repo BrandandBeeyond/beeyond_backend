@@ -6,6 +6,7 @@ const {
   EMAIL_PASS,
   ADMIN_PHONE,
   TWILIO_PHONE_NUMBER,
+  ADMIN_EMAIL,
 } = require("../config/config");
 const sendToken = require("../config/sendToken");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
