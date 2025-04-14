@@ -10,6 +10,7 @@ const {
   verifyEmailOTP,
   checkMobile,
   editUser,
+  sendOrderEmailSms,
 } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
@@ -27,6 +28,8 @@ userRouter.post("/verify-otp", verifyOTP);
 
 userRouter.post('/send-email-otp',sendEmailOTP);
 userRouter.post('/verify-email-otp',verifyEmailOTP);
+
+userRouter.post('/sendmailsms',sendOrderEmailSms);
 
 
 

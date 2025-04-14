@@ -4,6 +4,8 @@ const {
   TWILIO_SERVICE_SID,
   EMAIL_USER,
   EMAIL_PASS,
+  ADMIN_PHONE,
+  TWILIO_PHONE_NUMBER,
 } = require("../config/config");
 const sendToken = require("../config/sendToken");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
@@ -112,20 +114,27 @@ const editUser = asyncErrorHandler(async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     if (email && email !== user.email) {
       const existingEmail = await User.findOne({ email });
       if (existingEmail) {
-        return res.status(400).json({ success: false, message: "This email is already in use" });
+        return res
+          .status(400)
+          .json({ success: false, message: "This email is already in use" });
       }
     }
 
     if (mobile && mobile !== user.mobile) {
       const existingMobile = await User.findOne({ mobile });
       if (existingMobile) {
-        return res.status(400).json({ success: false, message: "This mobile number is already in use" });
+        return res.status(400).json({
+          success: false,
+          message: "This mobile number is already in use",
+        });
       }
     }
 
@@ -141,13 +150,13 @@ const editUser = asyncErrorHandler(async (req, res) => {
       message: "User updated successfully",
       user,
     });
-
   } catch (error) {
     console.error("Error updating user:", error);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 const loginUser = asyncErrorHandler(async (req, res) => {
   try {
@@ -424,6 +433,94 @@ const checkMobile = asyncErrorHandler(async (req, res) => {
   }
 });
 
+const sendOrderEmailSms = async (req, res) => {
+  try {
+    const { eventType, user, orderDetails } = req.body;
+
+    if (!eventType || !user || !orderDetails) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: eventType, user, or orderDetails",
+      });
+    }
+
+    const eventMessages = {
+      order_placed: "has been placed successfully",
+      order_shipped: "has been shipped",
+      order_delivered: "has been delivered",
+      order_cancelled: "has been cancelled",
+    };
+
+    const eventMessage = eventMessages[eventType];
+
+    if (!eventMessage) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid event type",
+      });
+    }
+
+    const orderId = orderDetails.orderId || orderDetails._id || "Order";
+
+    const userSmsText = `Hello ${user.name}, your order ${orderId} ${eventMessage} - Beeyond`;
+    const adminSmsText = `Order ${orderId} ${eventMessage} by ${user.name}.`;
+
+    const userPhone = user.phone.startsWith("+")
+      ? user.phone
+      : `+${user.phone}`;
+    const adminPhone = ADMIN_PHONE.startsWith("+")
+      ? ADMIN_PHONE
+      : `+${ADMIN_PHONE}`;
+
+    await client.messages.create({
+      to: userPhone,
+      from: TWILIO_PHONE_NUMBER,
+      body: userSmsText,
+    });
+
+    await client.messages.create({
+      to: adminPhone,
+      from: TWILIO_PHONE_NUMBER,
+      body: adminSmsText,
+    });
+
+    const userEmailOptions = {
+      rom: EMAIL_USER,
+      to: user.email,
+      subject: `Your Order ${orderId} ${eventMessage}`,
+      text: `Hi ${user.name},\n\nYour order ${orderId} ${eventMessage}.\n\nThank you for shopping with Beeyond!`,
+    };
+
+    const adminEmailOptions = {
+      from: EMAIL_USER,
+      to: ADMIN_EMAIL,
+      subject: `Order ${orderId} ${eventMessage}`,
+      text: `Admin,\n\nOrder ${orderId} by ${user.name} (${
+        user.email
+      }) ${eventMessage}.\n\nOrder Details:\n${JSON.stringify(
+        orderDetails,
+        null,
+        2
+      )}`,
+    };
+
+    await transporter.sendMail(userEmailOptions);
+    await transporter.sendMail(adminEmailOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: `Notification for '${eventType}' sent to user and admin`,
+    });
+  } catch (error) {
+    console.error("Notification error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send notification",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   checkUserExist,
   registerUser,
@@ -435,4 +532,5 @@ module.exports = {
   verifyEmailOTP,
   checkMobile,
   editUser,
+  sendOrderEmailSms,
 };

@@ -12,10 +12,11 @@ const COOKIE_EXPIRE = process.env.COOKIE_EXPIRE;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_SERVICE_SID = process.env.TWILIO_SERVICE_SID;
-
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
+const ADMIN_PHONE = process.env.ADMIN_PHONE;
 
 module.exports = {
   PORT,
@@ -30,5 +31,7 @@ module.exports = {
   TWILIO_ACCOUNT_SID,
   TWILIO_SERVICE_SID,
   EMAIL_PASS,
-  EMAIL_USER
+  EMAIL_USER,
+  ADMIN_PHONE,
+  TWILIO_PHONE_NUMBER,
 };
