@@ -19,19 +19,16 @@ userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
 userRouter.get("/logout", logoutUser);
 
-userRouter.get('/check-mobile/:mobile',checkMobile);
-userRouter.put('/edit/:userId',editUser);
+userRouter.get("/check-mobile/:mobile", checkMobile);
+userRouter.put("/edit/:userId", editUser);
 // otp routes
 
 userRouter.post("/send-otp", sendOTP);
 userRouter.post("/verify-otp", verifyOTP);
 
-userRouter.post('/send-email-otp',sendEmailOTP);
-userRouter.post('/verify-email-otp',verifyEmailOTP);
+userRouter.post("/send-email-otp", sendEmailOTP);
+userRouter.post("/verify-email-otp", verifyEmailOTP);
 
-userRouter.post('/sendmailsms',sendOrderEmailSms);
-
-
-
+userRouter.post("/sendmailsms", sendOrderEmailSms);
 
 module.exports = userRouter;
