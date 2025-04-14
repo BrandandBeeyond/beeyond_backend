@@ -462,33 +462,33 @@ const sendOrderEmailSms = async (req, res) => {
 
     const orderId = orderDetails.orderId || orderDetails._id || "Order";
 
-    const userSmsText = `Hello ${user.name}, your order ${orderId} ${eventMessage} - Beeyond`;
-    const adminSmsText = `Order ${orderId} ${eventMessage} by ${user.name}.`;
+    // const userSmsText = `Hello ${user.name}, your order ${orderId} ${eventMessage} - Beeyond`;
+    // const adminSmsText = `Order ${orderId} ${eventMessage} by ${user.name}.`;
 
-    const userPhone = user.mobile.startsWith("+")
-      ? user.mobile
-      : `+${user.mobile}`;
+    // const userPhone = user.mobile.startsWith("+")
+    //   ? user.mobile
+    //   : `+${user.mobile}`;
 
-      console.log("getting user phone",userPhone);
+    //   console.log("getting user phone",userPhone);
       
-    const adminPhone = ADMIN_PHONE.startsWith("+")
-      ? ADMIN_PHONE
-      : `+${ADMIN_PHONE}`;
+    // const adminPhone = ADMIN_PHONE.startsWith("+")
+    //   ? ADMIN_PHONE
+    //   : `+${ADMIN_PHONE}`;
 
-      console.log('getting admin phone',adminPhone);
+    //   console.log('getting admin phone',adminPhone);
       
 
-    await client.messages.create({
-      to: userPhone,
-      from: TWILIO_PHONE_NUMBER,
-      body: userSmsText,
-    });
+    // await client.messages.create({
+    //   to: userPhone,
+    //   from: TWILIO_PHONE_NUMBER,
+    //   body: userSmsText,
+    // });
 
-    await client.messages.create({
-      to: adminPhone,
-      from: TWILIO_PHONE_NUMBER,
-      body: adminSmsText,
-    });
+    // await client.messages.create({
+    //   to: adminPhone,
+    //   from: TWILIO_PHONE_NUMBER,
+    //   body: adminSmsText,
+    // });
 
     const userEmailOptions = {
       rom: EMAIL_USER,
