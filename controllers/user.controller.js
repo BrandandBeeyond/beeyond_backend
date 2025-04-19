@@ -14,6 +14,7 @@ const User = require("../models/User.model");
 const twilio = require("twilio");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
 const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const otpStore = new Map();
@@ -434,6 +435,29 @@ const checkMobile = asyncErrorHandler(async (req, res) => {
   }
 });
 
+const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error checking mobile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const sendOrderEmailSms = async (req, res) => {
   try {
     const { eventType, user, orderDetails } = req.body;
@@ -471,13 +495,12 @@ const sendOrderEmailSms = async (req, res) => {
     //   : `+${user.mobile}`;
 
     //   console.log("getting user phone",userPhone);
-      
+
     // const adminPhone = ADMIN_PHONE.startsWith("+")
     //   ? ADMIN_PHONE
     //   : `+${ADMIN_PHONE}`;
 
     //   console.log('getting admin phone',adminPhone);
-      
 
     // await client.messages.create({
     //   to: userPhone,
@@ -540,4 +563,5 @@ module.exports = {
   checkMobile,
   editUser,
   sendOrderEmailSms,
+  resetPassword
 };
