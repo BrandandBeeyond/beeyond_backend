@@ -437,7 +437,7 @@ const checkMobile = asyncErrorHandler(async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, newPassword } = req.body;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -445,7 +445,7 @@ const resetPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = await bcrypt.hash(password, 10);
 
     await user.save();
 
