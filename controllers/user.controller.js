@@ -445,7 +445,7 @@ const resetPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.password = await bcrypt.hash(password, 10);
+    user.password = password;
 
     await user.save();
 
