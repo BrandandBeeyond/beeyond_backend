@@ -462,13 +462,17 @@ const changePassword = async (req, res) => {
   try {
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
 
+    if (!email || !currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     if (newPassword !== confirmPassword) {
       return res
         .status(400)
         .json({ message: "New password and confirm password do not match" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -494,6 +498,7 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const sendOrderEmailSms = async (req, res) => {
   try {
