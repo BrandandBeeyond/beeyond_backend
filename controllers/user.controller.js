@@ -440,15 +440,10 @@ const resetPassword = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
     user.password = password;
-
+    console.log("New raw password set in resetPassword:", password);
     await user.save();
-
+    
     res
       .status(200)
       .json({ success: true, message: "Password reset successfully" });
