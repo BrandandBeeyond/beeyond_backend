@@ -159,7 +159,72 @@ const editUser = asyncErrorHandler(async (req, res) => {
       .json({ success: false, message: "Internal Server Error" });
   }
 });
+const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
+  const { name, email, password, mobile, otp } = req.body;
 
+  if (!name || !email || !password || !mobile || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields including OTP are required",
+    });
+  }
+
+  try {
+    const formattedNumber = mobile.startsWith("+91")
+      ? mobile
+      : `+91${mobile}`;
+
+    const result = await client.verify.v2
+      .services(process.env.TWILIO_SERVICE_SID)
+      .verificationChecks.create({
+        to: formattedNumber,
+        code: otp,
+      });
+
+    if (result.status !== "approved") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again.",
+      });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists",
+      });
+    }
+
+    const existingMobile = await User.findOne({ mobile });
+    if (existingMobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number already exists",
+      });
+    }
+
+    // 👇 Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      mobile,
+      isVerified: true,
+    });
+
+    return sendToken(user, 201, res);
+  } catch (error) {
+    console.error("OTP Verification & Register Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+});
 const loginUser = asyncErrorHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -601,5 +666,6 @@ module.exports = {
   editUser,
   sendOrderEmailSms,
   resetPassword,
-  changePassword
+  changePassword,
+  verifyOtpAndRegister
 };

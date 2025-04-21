@@ -13,11 +13,13 @@ const {
   sendOrderEmailSms,
   resetPassword,
   changePassword,
+  verifyOtpAndRegister,
 } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
 userRouter.post("/check-user", checkUserExist);
 userRouter.post("/register", registerUser);
+userRouter.post("/verify-otp-register", verifyOtpAndRegister);
 userRouter.post("/login", loginUser);
 userRouter.get("/logout", logoutUser);
 
