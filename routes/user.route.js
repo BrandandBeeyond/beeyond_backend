@@ -12,6 +12,7 @@ const {
   editUser,
   sendOrderEmailSms,
   resetPassword,
+  changePassword,
 } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
@@ -31,6 +32,7 @@ userRouter.post("/send-email-otp", sendEmailOTP);
 userRouter.post("/verify-email-otp", verifyEmailOTP);
 
 userRouter.post('/reset-password',resetPassword);
+userRouter.post('/change-password',changePassword);
 
 userRouter.post("/sendmailsms", sendOrderEmailSms);
 

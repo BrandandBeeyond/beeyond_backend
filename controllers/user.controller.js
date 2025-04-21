@@ -458,6 +458,43 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { email, currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== currentPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const sendOrderEmailSms = async (req, res) => {
   try {
     const { eventType, user, orderDetails } = req.body;
@@ -563,5 +600,6 @@ module.exports = {
   checkMobile,
   editUser,
   sendOrderEmailSms,
-  resetPassword
+  resetPassword,
+  changePassword
 };
