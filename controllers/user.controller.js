@@ -479,11 +479,8 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    console.log("this is hashedPassword",hashedPassword);
-    
-    user.password = hashedPassword;
+    // ✅ Set raw password, let pre-save hook hash it
+    user.password = newPassword;
 
     await user.save();
 
@@ -495,6 +492,7 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 const sendOrderEmailSms = async (req, res) => {
