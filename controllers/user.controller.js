@@ -462,7 +462,7 @@ const changePassword = async (req, res) => {
   try {
     const { email, currentPassword, newPassword, confirmPassword } = req.body;
 
-    if (newPassword !== currentPassword) {
+    if (newPassword !== confirmPassword) {
       return res
         .status(400)
         .json({ message: "New password and confirm password do not match" });
