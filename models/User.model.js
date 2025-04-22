@@ -47,16 +47,16 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
 });
 
-// Remove the password hashing pre-save hook
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) {
-//     console.log("Password not modified — skipping hashing");
-//     return next();
-//   }
-//   console.log("Hashing password before save...");
-//   this.password = await bcrypt.hash(this.password, 10);
-//   next();
-// });
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    console.log("Password not modified — skipping hashing");
+    return next();
+  }
+  console.log("Hashing password before save...");
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
 userSchema.methods.getJwtToken = function() {
     return jwt.sign(
