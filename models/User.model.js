@@ -45,42 +45,38 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-
 });
 
+// Remove the password hashing pre-save hook
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) {
+//     console.log("Password not modified — skipping hashing");
+//     return next();
+//   }
+//   console.log("Hashing password before save...");
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
+// });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    console.log("Password not modified — skipping hashing");
-    return next();
-  }
-
-  console.log("Hashing password before save...");
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
-
-
-userSchema.methods.getJwtToken=function(){
+userSchema.methods.getJwtToken = function() {
     return jwt.sign(
-        {id:this._id},
-         JWT_SECRET,
-         {expiresIn:JWT_EXPIRES}         
-    )
+        { id: this._id },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES }         
+    );
 };
 
+userSchema.methods.comparePassword = async function(enteredPassword) {
+  return enteredPassword === this.password; // No need to hash, simple string comparison
+};
 
-userSchema.methods.comparePassword=async function(enteredPassword){
-  return await bcrypt.compare(enteredPassword,this.password)
-}
-
-userSchema.methods.getResetPasswordToken=async function(){
+userSchema.methods.getResetPasswordToken = async function() {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
-   this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-   this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
 
-   return resetToken;
-}
+    return resetToken;
+};
 
-module.exports = mongoose.model('User',userSchema);
+module.exports = mongoose.model('User', userSchema);
