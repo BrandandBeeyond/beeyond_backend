@@ -246,10 +246,12 @@ const loginUser = asyncErrorHandler(async (req, res) => {
 
     const isMatch = await user.comparePassword(password);
 
+    console.log("password match or not",isMatch);
+    
     if (!isMatch) {
       return res
         .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+        .json({ success: false, message: "Invalid password" });
     }
 
     sendToken(user, 200, res);
