@@ -211,7 +211,7 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      password,
+      password:hashedPassword,
       mobile,
       isVerified: true,
     });
