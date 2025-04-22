@@ -58,48 +58,48 @@ const checkUserExist = asyncErrorHandler(async (req, res, next) => {
   }
 });
 
-const registerUser = asyncErrorHandler(async (req, res, next) => {
-  try {
-    const { name, email, password, mobile } = req.body;
+// const registerUser = asyncErrorHandler(async (req, res, next) => {
+//   try {
+//     const { name, email, password, mobile } = req.body;
 
-    if (!name || !email || !password || !mobile) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please enter all required fields" });
-    }
+//     if (!name || !email || !password || !mobile) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Please enter all required fields" });
+//     }
 
-    const existingUser = await User.findOne({ email });
+//     const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "user already exists" });
-    }
+//     if (existingUser) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "user already exists" });
+//     }
 
-    const existingMobile = await User.findOne({ mobile });
+//     const existingMobile = await User.findOne({ mobile });
 
-    if (existingMobile) {
-      return res.status(400).json({
-        success: false,
-        message: "This mobile number is already in use",
-      });
-    }
-    const user = await User.create({
-      name,
-      email,
-      password,
-      mobile,
-      isVerified: true,
-    });
+//     if (existingMobile) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "This mobile number is already in use",
+//       });
+//     }
+//     const user = await User.create({
+//       name,
+//       email,
+//       password,
+//       mobile,
+//       isVerified: true,
+//     });
 
-    sendToken(user, 201, res);
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(404)
-      .json({ success: false, message: "Something wents wrong" });
-  }
-});
+//     sendToken(user, 201, res);
+//   } catch (error) {
+//     console.error(error);
+//     return res
+//       .status(404)
+//       .json({ success: false, message: "Something wents wrong" });
+//   }
+// });
 
 const editUser = asyncErrorHandler(async (req, res) => {
   try {
