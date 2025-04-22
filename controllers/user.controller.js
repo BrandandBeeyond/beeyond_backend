@@ -206,16 +206,17 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
 
     // 👇 Hash password before saving
   
+    const hashedPassword = await bcrypt.hash(password,10);
 
     const user = await User.create({
       name,
       email,
-      password,
+      password:hashedPassword,
       mobile,
       isVerified: true,
     });
 
-    return sendToken(user, 201, res);s
+    return sendToken(user, 201, res);
   } catch (error) {
     console.error("OTP Verification & Register Error:", error);
     return res.status(500).json({
