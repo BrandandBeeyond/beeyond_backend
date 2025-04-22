@@ -211,7 +211,7 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      password:hashedPassword,
+      password,
       mobile,
       isVerified: true,
     });
@@ -230,6 +230,8 @@ const loginUser = asyncErrorHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("Login attempt with Email:", email, "Password:", password);
+
     if (!email || !password) {
       return res
         .status(400)
@@ -239,24 +241,30 @@ const loginUser = asyncErrorHandler(async (req, res) => {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
+      console.log("User not found with email:", email);
       return res
         .status(404)
         .json({ success: false, message: "Invalid credentials" });
     }
 
+    console.log("Stored password in DB:", user.password);
+
     const isMatch = await user.comparePassword(password);
 
-    console.log("password match or not",isMatch);
-    
+    console.log("Password match or not:", isMatch);
+
     if (!isMatch) {
+      console.log("Password did not match for email:", email);
       return res
         .status(401)
         .json({ success: false, message: "Invalid password" });
     }
 
+    console.log("Login successful for user:", user.email);
+
     sendToken(user, 200, res);
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     return res
       .status(404)
       .json({ success: false, message: "Something wents wrong" });

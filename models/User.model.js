@@ -66,9 +66,10 @@ userSchema.methods.getJwtToken = function() {
     );
 };
 
-userSchema.methods.comparePassword = async function(enteredPassword) {
-  return enteredPassword === this.password; // No need to hash, simple string comparison
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return String(enteredPassword) === String(this.password);
 };
+
 
 userSchema.methods.getResetPasswordToken = async function() {
     const resetToken = crypto.randomBytes(20).toString("hex");
