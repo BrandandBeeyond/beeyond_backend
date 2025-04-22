@@ -215,7 +215,7 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
       isVerified: true,
     });
 
-    return sendToken(user, 201, res);
+    return sendToken(user, 201, res);s
   } catch (error) {
     console.error("OTP Verification & Register Error:", error);
     return res.status(500).json({
