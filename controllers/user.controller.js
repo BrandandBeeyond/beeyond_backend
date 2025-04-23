@@ -516,7 +516,9 @@ const resetPassword = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    user.password = password;
+
+    const hashedPassword = await bcrypt.hash(password,10);
+    user.password = hashedPassword;
     console.log("New raw password set in resetPassword:", password);
     await user.save();
     
