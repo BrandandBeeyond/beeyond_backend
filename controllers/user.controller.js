@@ -546,6 +546,7 @@ const changePassword = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select('+password');
+    
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -557,8 +558,8 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    // ✅ Set raw password, let pre-save hook hash it
-    user.password = newPassword;
+    const hashedPassword = await bcrypt.hash(newPassword,10)
+    user.password = hashedPassword;
 
     await user.save();
 
