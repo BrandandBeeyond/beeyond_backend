@@ -125,7 +125,7 @@ const updateAddress = async (req, res) => {
         .json({ success: false, message: "Shipping info not found" });
     }
 
-    const addressIndex = await ShippingInfo.addresses.findIndex(
+    const addressIndex = shippingInfo.addresses.findIndex(
       (addr) => addr._id.toString() === addressId
     );
 
