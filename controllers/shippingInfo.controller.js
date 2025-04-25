@@ -111,18 +111,20 @@ const updateAddress = async (req, res) => {
   const { userId, addressId, updatedFields } = req.body;
 
   if (!userId || !addressId) {
-    return res
-      .status(400)
-      .json({ success: false, message: "userId and addressId are required" });
+    return res.status(400).json({
+      success: false,
+      message: "userId and addressId are required",
+    });
   }
 
   try {
     const shippingInfo = await ShippingInfo.findOne({ user: userId });
 
     if (!shippingInfo) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Shipping info not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Shipping info not found",
+      });
     }
 
     const addressIndex = shippingInfo.addresses.findIndex(
@@ -130,16 +132,23 @@ const updateAddress = async (req, res) => {
     );
 
     if (addressIndex === -1) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Address not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Address not found",
+      });
     }
 
+    // If this address is being set as default, unset all others
     if (updatedFields?.isDefault === true) {
-      shippingInfo.addresses.forEach((addr) => (addr.isDefault = false));
+      shippingInfo.addresses.forEach((addr) => {
+        addr.isDefault = false;
+      });
     }
+
+    // Update the address fields
     Object.assign(shippingInfo.addresses[addressIndex], updatedFields);
 
+    // Save the updated document
     await shippingInfo.save();
 
     res.status(200).json({
@@ -149,8 +158,12 @@ const updateAddress = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating address:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
+
 
 module.exports = { addOrUpdateShippingInfo, getShippingInfo, updateAddress };
