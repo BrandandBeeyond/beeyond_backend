@@ -131,6 +131,16 @@ const updateAddress = async (req, res) => {
       (addr) => addr._id.toString() === addressId
     );
 
+    console.log(
+      "Address  in DB:",
+      shippingInfo.addresses
+    );
+    console.log(
+      "Address IDs in DB:",
+      shippingInfo.addresses.map((addr) => addr._id.toString())
+    );
+    console.log("Provided addressId:", addressId);
+
     if (addressIndex === -1) {
       return res.status(404).json({
         success: false,
@@ -164,6 +174,5 @@ const updateAddress = async (req, res) => {
     });
   }
 };
-
 
 module.exports = { addOrUpdateShippingInfo, getShippingInfo, updateAddress };
