@@ -15,8 +15,10 @@ const twilio = require("twilio");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const { OAuth2Client } = require("google-auth-library");
 
 const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+const googleClinet = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const otpStore = new Map();
 
 const transporter = nodemailer.createTransport({
@@ -170,9 +172,7 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
   }
 
   try {
-    const formattedNumber = mobile.startsWith("+91")
-      ? mobile
-      : `+91${mobile}`;
+    const formattedNumber = mobile.startsWith("+91") ? mobile : `+91${mobile}`;
 
     const result = await client.verify.v2
       .services(process.env.TWILIO_SERVICE_SID)
@@ -205,13 +205,13 @@ const verifyOtpAndRegister = asyncErrorHandler(async (req, res, next) => {
     }
 
     // 👇 Hash password before saving
-  
-    const hashedPassword = await bcrypt.hash(password,10);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
-      password:hashedPassword,
+      password: hashedPassword,
       mobile,
       isVerified: true,
     });
@@ -270,6 +270,40 @@ const loginUser = asyncErrorHandler(async (req, res) => {
       .json({ success: false, message: "Something wents wrong" });
   }
 });
+
+const googleSignIn = async (req, res) => {
+  const { idToken, fcmToken } = req.body;
+  try {
+    const ticket = await googleClinet.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const { email, name } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        isVerified: true,
+        fcmToken,
+        password: undefined,
+      });
+    } else {
+      user.fcmToken = fcmToken;
+      await user.save();
+    }
+
+    sendToken(user, 200, res);
+  } catch (error) {
+    console.error(err);
+    res.status(401).json({ success: false, message: "Google login failed" });
+  }
+};
 
 const logoutUser = asyncErrorHandler(async (req, res, next) => {
   try {
@@ -517,11 +551,11 @@ const resetPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    const hashedPassword = await bcrypt.hash(password,10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     console.log("New raw password set in resetPassword:", password);
     await user.save();
-    
+
     res
       .status(200)
       .json({ success: true, message: "Password reset successfully" });
@@ -545,8 +579,7 @@ const changePassword = async (req, res) => {
         .json({ message: "New password and confirm password do not match" });
     }
 
-    const user = await User.findOne({ email }).select('+password');
-    
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -558,7 +591,7 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword,10)
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
 
     await user.save();
@@ -571,8 +604,6 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 const sendOrderEmailSms = async (req, res) => {
   try {
@@ -681,5 +712,6 @@ module.exports = {
   sendOrderEmailSms,
   resetPassword,
   changePassword,
-  verifyOtpAndRegister
+  verifyOtpAndRegister,
+  googleSignIn,
 };

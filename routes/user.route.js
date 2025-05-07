@@ -14,6 +14,7 @@ const {
   resetPassword,
   changePassword,
   verifyOtpAndRegister,
+  googleSignIn,
 } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
@@ -37,5 +38,6 @@ userRouter.post('/reset-password',resetPassword);
 userRouter.post('/change-password',changePassword);
 
 userRouter.post("/sendmailsms", sendOrderEmailSms);
+userRouter.post("/auth/google", googleSignIn);
 
 module.exports = userRouter;
