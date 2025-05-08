@@ -300,7 +300,7 @@ const googleSignIn = async (req, res) => {
 
     sendToken(user, 200, res);
   } catch (error) {
-    console.error(err);
+    console.error('Google Login Backend Error:', error); 
     res.status(401).json({ success: false, message: "Google login failed" });
   }
 };
