@@ -64,16 +64,26 @@ const createOrder = async (req, res) => {
   }
 };
 
+// PUT /api/orders/cancel/:orderId
 const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
 
+    // Validate the orderId format (optional but good practice)
+    if (!orderId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Order ID format",
+      });
+    }
+
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
     }
 
     if (order.orderStatus === "Cancelled") {
@@ -83,6 +93,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
+    // Update order status to Cancelled
     order.orderStatus = "Cancelled";
     await order.save();
 
@@ -92,9 +103,15 @@ const cancelOrder = async (req, res) => {
       order,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Cancel Order Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
+
 
 const getOrders = async (req, res) => {
   try {
